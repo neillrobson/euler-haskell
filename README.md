@@ -9,3 +9,7 @@ Project Euler problems are largely _math_ problems. Coding skills only come into
 My goal is to learn **interesting mathematics** primarily. Although I'm also learning Haskell, I don't plan on using particularly advanced language features in this repository.
 
 The [Advent of Code](https://github.com/neillrobson/advent-haskell) repository is a more appropriate location to mess around with novel Haskell language features and libraries.
+
+## Current Goal
+
+I've noodled with [Problem 465, Polar Polygons](https://projecteuler.net/problem=465) for over a decade now. I'm going through selected related problems, to build up mathematical intuition and tools for one day conquering 465.
