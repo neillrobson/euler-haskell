@@ -1,14 +1,12 @@
 module Solutions.P0097 where
 
-import Solutions.P0048 (Modulus, modularExp)
+import Solutions.P0048 (ModTenTen, modularExp)
+import Utils.Modular (unMod)
 
 solve :: Integer
-solve = (powerOfTwo * 28433 + 1) `mod` modulus
+solve = unMod $ powerOfTwo * 28433 + 1
 
 --------------------------------------------------------------------------------
 
-modulus :: Modulus
-modulus = 10 ^ (10 :: Integer)
-
-powerOfTwo :: Integer
-powerOfTwo = modularExp 2 7830457 modulus
+powerOfTwo :: ModTenTen
+powerOfTwo = modularExp 2 7830457
