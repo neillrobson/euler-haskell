@@ -4,7 +4,7 @@ module Utils.Modular where
 
 import GHC.TypeLits (KnownNat, Nat, natVal)
 
-newtype Mod (m :: Nat) = Mod Integer deriving (Eq, Ord)
+newtype Mod (m :: Nat) = Mod {unMod :: Integer} deriving (Eq, Ord)
 
 instance (KnownNat m) => Num (Mod m) where
   mx@(Mod x) * Mod y = Mod $ x * y `mod` natVal mx

@@ -1,32 +1,27 @@
 module Solutions.P0048 where
 
+import Utils.Modular (Mod (Mod, unMod))
+
 solve :: Integer
-solve = selfPowerSum (10 ^ (10 :: Integer)) 1000
+solve = unMod $ selfPowerSum 1000
 
 --------------------------------------------------------------------------------
 
-type Base = Integer
+type ModTenTen = Mod 10000000000
+
+type Base = ModTenTen
 
 type Exponent = Integer
 
-type Modulus = Integer
+type Result = ModTenTen
 
-modularExp :: Base -> Exponent -> Modulus -> Integer
-modularExp _ _ 1 = 0
-modularExp _ 0 _ = 1
-modularExp b e m =
-  let b' = (b ^ (2 :: Integer)) `mod` m
+modularExp :: Base -> Exponent -> Result
+modularExp _ 0 = 1
+modularExp b e =
+  let b' = b ^ (2 :: Integer)
       e' = e `div` 2
-      c = if odd e then b `mod` m else 1
-   in (c * modularExp b' e' m) `mod` m
+      c = if odd e then b else 1
+   in c * modularExp b' e'
 
-sumModM :: Modulus -> [Integer] -> Integer
-sumModM m = foldr ((`mod` m) .: (+)) 0
-
-selfPowerSum :: Modulus -> Integer -> Integer
-selfPowerSum m x = sumModM m $ map (\i -> modularExp i i m) [1 .. x]
-
---------------------------------------------------------------------------------
-
-(.:) :: (c -> d) -> (a -> b -> c) -> a -> b -> d
-(f .: g) x y = f $ g x y
+selfPowerSum :: Integer -> Result
+selfPowerSum x = sum $ map (\i -> modularExp (Mod i) i) [1 .. x]
