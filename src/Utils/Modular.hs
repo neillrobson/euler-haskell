@@ -18,3 +18,6 @@ instance (KnownNat m) => Num (Mod m) where
   fromInteger x = mx
     where
       mx = Mod $ x `mod` natVal mx
+
+instance Show (Mod m) where
+  show (Mod x) = show x
