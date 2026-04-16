@@ -2,11 +2,11 @@
 
 module Utils.Primes where
 
-import Control.Monad (forM_)
-import Control.Monad.ST (runST)
+import Control.Monad (forM_, when)
+import Data.Array.ST (modifyArray', newListArray, readArray, runSTUArray)
+import Data.Array.Unboxed (accum, elems, listArray)
 import Data.Int (Int64)
-import Data.STRef (modifySTRef, newSTRef, readSTRef)
-import GHC.Arr (accum, elems, listArray)
+import Data.Word (Word64)
 
 --------------------------------------------------------------------------------
 
@@ -20,19 +20,22 @@ primes = 2 : 3 : filter isPrime (chain [5, 11 ..] [7, 13 ..])
 isPrime :: (Integral a) => a -> Bool
 isPrime x = all (\i -> x `mod` i /= 0) $ takeWhile (\i -> i * i <= x) primes
 
-eulerPhi :: Int64 -> [Int64]
-eulerPhi limit = elems $ accum (\x p -> x - x `div` p) phi primePairs
-  where
-    ps = takeWhile (<= limit) primes
-    idxs = map (\p -> takeWhile (<= limit) [p, p * 2 ..]) ps
-    primePairs = concat $ zipWith (\is p -> (,p) <$> is) idxs ps
-    phi = listArray (1, limit) [1 .. limit]
+-- eulerPhi :: Int64 -> [Int64]
+-- eulerPhi limit = elems $ accum (\x p -> x - x `div` p) phi primePairs
+--   where
+--     ps = takeWhile (<= limit) primes
+--     idxs = map (\p -> takeWhile (<= limit) [p, p * 2 ..]) ps
+--     primePairs = concat $ zipWith (\is p -> (,p) <$> is) idxs ps
+--     phi = listArray (1, limit) [1 .. limit]
 
 --------------------------------------------------------------------------------
 
-phiST :: (Num a) => [a] -> a
-phiST xs = runST $ do
-  n <- newSTRef 0
-  forM_ xs $ \x -> do
-    modifySTRef n (+ x)
-  readSTRef n
+phiST :: Word64 -> [Word64]
+phiST limit = elems $ runSTUArray $ do
+  phi <- newListArray (1, limit) [1 .. limit]
+  forM_ [2 .. limit] $ \i -> do
+    phii <- readArray phi i
+    when (phii == i) $ do
+      let js = takeWhile (<= limit) [i, 2 * i ..]
+      forM_ js $ \j -> modifyArray' phi j (\e -> e - e `div` i)
+  return phi
