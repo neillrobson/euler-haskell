@@ -41,7 +41,15 @@ isAnagram = go $ M.fromList $ map (,0 :: Integer) [0 .. 9]
 potentialPrimes :: Integer -> [Integer]
 potentialPrimes pow = reverse $ takeWhile (<= floor ((** (1 / fromInteger pow)) $ fromInteger limit :: Double)) primes
 
-phiPrimePow :: Integer -> Integer -> (Integer, Integer)
+type Power = Integer
+
+type Prime = Integer
+
+type N = Integer
+
+type Phi = Integer
+
+phiPrimePow :: Power -> Prime -> (N, Phi)
 phiPrimePow pow pri = (curr, curr - prev)
   where
     prev = pri ^ (pow - 1)
@@ -67,7 +75,7 @@ treeFold f z (x : xs) = f x $ treeFold f z $ mapPairs f xs
 
 makePairList :: [a] -> [(a, a)]
 makePairList [] = []
-makePairList (x : xs) = map (x,) xs
+makePairList xs@(x : _) = map (x,) xs
 
 primePairs :: [Integer] -> [(Integer, Integer)]
 primePairs ps = treeFold merge [] $ map makePairList $ init $ tails ps
@@ -84,3 +92,10 @@ primePairs ps = treeFold merge [] $ map makePairList $ init $ tails ps
 
 nOverPhiPair :: Integer -> Integer -> Double
 nOverPhiPair (fromInteger -> p) (fromInteger -> q) = (p * q) / ((p - 1) * (q - 1))
+
+phiPrimePair :: Prime -> Prime -> (N, Phi)
+phiPrimePair p q = (p * q, (p - 1) * (q - 1))
+
+-- This yields 7026037, incorrect.
+maybeSolve :: Integer
+maybeSolve = fst $ head $ filter (uncurry isAnagram) $ map (uncurry phiPrimePair) $ primePairs $ potentialPrimes 2
