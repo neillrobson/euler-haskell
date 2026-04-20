@@ -1,7 +1,9 @@
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Solutions.P0070 where
 
+import Data.List (tails)
 import qualified Data.Map as M
 import Utils.Primes (primes)
 
@@ -49,3 +51,36 @@ phiPrimePow pow pri = (curr, curr - prev)
 
 solutionsAt :: Integer -> [(Integer, Integer)]
 solutionsAt k = filter (uncurry isAnagram) $ map (phiPrimePow k) $ potentialPrimes k
+
+--------------------------------------------------------------------------------
+
+-- Let's go through pairs of primes next.
+-- We've got to get them ordered by the min-condition.
+
+mapPairs :: (a -> a -> a) -> [a] -> [a]
+mapPairs f (x : y : zs) = f x y : mapPairs f zs
+mapPairs _ zs = zs
+
+treeFold :: (a -> a -> a) -> a -> [a] -> a
+treeFold _ z [] = z
+treeFold f z (x : xs) = f x $ treeFold f z $ mapPairs f xs
+
+makePairList :: [a] -> [(a, a)]
+makePairList [] = []
+makePairList (x : xs) = map (x,) xs
+
+primePairs :: [Integer] -> [(Integer, Integer)]
+primePairs ps = treeFold merge [] $ map makePairList $ init $ tails ps
+  where
+    merge [] ys = ys
+    -- Assume head of x meets the condition better than head of y
+    merge (x : xs) ys = x : go xs ys
+      where
+        go (u : us) (v : vs)
+          | uncurry nOverPhiPair u < uncurry nOverPhiPair v = u : go us (v : vs)
+          | otherwise = v : go (u : us) vs
+        go [] as = as
+        go as [] = as
+
+nOverPhiPair :: Integer -> Integer -> Double
+nOverPhiPair (fromInteger -> p) (fromInteger -> q) = (p * q) / ((p - 1) * (q - 1))
