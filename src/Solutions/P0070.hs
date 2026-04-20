@@ -15,7 +15,7 @@ import Utils.Primes (primes)
 -- Any true prime has a phi of (p-1) which is definitely not an anagram.
 
 solve :: Integer
-solve = undefined
+solve = fst $ head $ filter anagramBelowLimit $ map (uncurry phiPrimePair) $ sortedPrimePairs $ primesBelow 10000
 
 --------------------------------------------------------------------------------
 
@@ -98,10 +98,6 @@ nOverPhiPair (fromInteger -> p) (fromInteger -> q) = (p * q) / ((p - 1) * (q - 1
 phiPrimePair :: Prime -> Prime -> (N, Phi)
 phiPrimePair p q = (p * q, (p - 1) * (q - 1))
 
--- This yields 7026037, incorrect.
-failureOne :: Integer
-failureOne = fst $ head $ filter (uncurry isAnagram) $ map (uncurry phiPrimePair) $ sortedPrimePairs $ potentialPrimes 2
-
 --------------------------------------------------------------------------------
 
 -- We need to search a space higher than 3137, while still filtering out
@@ -112,6 +108,3 @@ primesBelow n = reverse $ takeWhile (< n) primes
 
 anagramBelowLimit :: (N, Phi) -> Bool
 anagramBelowLimit (n, phi) = n < limit && isAnagram n phi
-
-maybeSolve :: Integer
-maybeSolve = fst $ head $ filter anagramBelowLimit $ map (uncurry phiPrimePair) $ sortedPrimePairs $ primesBelow 10000
