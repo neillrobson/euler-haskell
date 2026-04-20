@@ -77,8 +77,10 @@ makePairList :: [a] -> [(a, a)]
 makePairList [] = []
 makePairList xs@(x : _) = map (x,) xs
 
-primePairs :: [Integer] -> [(Integer, Integer)]
-primePairs ps = treeFold merge [] $ map makePairList $ init $ tails ps
+-- Tuples of primes from the input,
+-- sorted in order of increasing n/phi(n).
+sortedPrimePairs :: [Integer] -> [(Integer, Integer)]
+sortedPrimePairs ps = treeFold merge [] $ map makePairList $ init $ tails ps
   where
     merge [] ys = ys
     -- Assume head of x meets the condition better than head of y
@@ -97,5 +99,19 @@ phiPrimePair :: Prime -> Prime -> (N, Phi)
 phiPrimePair p q = (p * q, (p - 1) * (q - 1))
 
 -- This yields 7026037, incorrect.
+failureOne :: Integer
+failureOne = fst $ head $ filter (uncurry isAnagram) $ map (uncurry phiPrimePair) $ sortedPrimePairs $ potentialPrimes 2
+
+--------------------------------------------------------------------------------
+
+-- We need to search a space higher than 3137, while still filtering out
+-- any pairs whose product goes above 10^7.
+
+primesBelow :: Integer -> [Integer]
+primesBelow n = reverse $ takeWhile (< n) primes
+
+anagramBelowLimit :: (N, Phi) -> Bool
+anagramBelowLimit (n, phi) = n < limit && isAnagram n phi
+
 maybeSolve :: Integer
-maybeSolve = fst $ head $ filter (uncurry isAnagram) $ map (uncurry phiPrimePair) $ primePairs $ potentialPrimes 2
+maybeSolve = fst $ head $ filter anagramBelowLimit $ map (uncurry phiPrimePair) $ sortedPrimePairs $ primesBelow 10000
