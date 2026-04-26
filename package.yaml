@@ -17,7 +17,6 @@ dependencies:
 
 ghc-options:
   - -Wall
-  - -O2
 
 default-extensions:
   - DataKinds
@@ -31,3 +30,5 @@ executables:
     main: Main.hs
     dependencies:
       - euler-haskell
+    ghc-options:
+      - -O2

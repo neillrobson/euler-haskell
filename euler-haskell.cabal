@@ -27,6 +27,7 @@ library
       Solutions.P0048
       Solutions.P0069
       Solutions.P0070
+      Solutions.P0073
       Solutions.P0097
       Utils.Modular
       Utils.Primes
@@ -38,7 +39,7 @@ library
       src
   default-extensions:
       DataKinds
-  ghc-options: -Wall -O2
+  ghc-options: -Wall
   build-depends:
       array
     , base >=4.7 && <5
