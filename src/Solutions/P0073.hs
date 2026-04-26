@@ -1,32 +1,28 @@
 module Solutions.P0073 where
 
-import Data.Ratio ((%))
+import Data.Ratio (Ratio, denominator, numerator, (%))
 
 solve :: Integer
-solve = fromIntegral $ ratiosBetweenThirdAndHalf 12000
+solve = fareyCountBtwn 12000 (1 % 3) (1 % 2)
 
 --------------------------------------------------------------------------------
 
-type Farey = (Int, Int)
+type Farey = Ratio Integer
 
-fareySequence :: Int -> [Farey]
-fareySequence limit = (0, 1) : (1, limit) : next (fareySequence limit)
+fareyCountBtwn :: Integer -> Farey -> Farey -> Integer
+fareyCountBtwn limit minim maxim = go limit minim maxim (0 % 1) (1 % limit) 0
   where
-    -- First two to satisfy exhaustive pattern-match
-    next [] = []
-    next [_] = []
-    -- Base case: we reached (1, 1)
-    next (_ : (_, 1) : _) = []
-    -- General case
-    next ((a, b) : rest@((c, d) : _)) = (p, q) : next rest
+    go :: Integer -> Farey -> Farey -> Farey -> Farey -> Integer -> Integer
+    go lim mn mx ab cd count
+      | cd >= mx = count
+      | otherwise = go lim mn mx cd pq count'
       where
-        k = (limit + b) `div` d
+        count' = if cd > mn then count + 1 else count
+        a = numerator ab
+        b = denominator ab
+        c = numerator cd
+        d = denominator cd
+        k = (lim + b) `div` d
         p = k * c - a
         q = k * d - b
-
-ratiosBetweenThirdAndHalf :: Int -> Int
-ratiosBetweenThirdAndHalf =
-  length
-    . takeWhile (\(a, b) -> (a % b) < (1 % 2))
-    . dropWhile (\(a, b) -> (a % b) <= (1 % 3))
-    . fareySequence
+        pq = p % q
