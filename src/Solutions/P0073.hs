@@ -1,7 +1,9 @@
 module Solutions.P0073 where
 
+import Data.Ratio ((%))
+
 solve :: Integer
-solve = undefined
+solve = fromIntegral $ ratiosBetweenThirdAndHalf 12000
 
 --------------------------------------------------------------------------------
 
@@ -21,3 +23,10 @@ fareySequence limit = (0, 1) : (1, limit) : next (fareySequence limit)
         k = (limit + b) `div` d
         p = k * c - a
         q = k * d - b
+
+ratiosBetweenThirdAndHalf :: Int -> Int
+ratiosBetweenThirdAndHalf =
+  length
+    . takeWhile (\(a, b) -> (a % b) < (1 % 2))
+    . dropWhile (\(a, b) -> (a % b) <= (1 % 3))
+    . fareySequence

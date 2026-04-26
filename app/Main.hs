@@ -5,6 +5,7 @@ module Main where
 import Solutions.P0048 (solve)
 import Solutions.P0069 (solve)
 import Solutions.P0070 (solve)
+import Solutions.P0073 (solve)
 import Solutions.P0097 (solve)
 import System.IO (hFlush, stdout)
 import Text.Read (readMaybe)
@@ -38,5 +39,6 @@ answer = \case
   48 -> Just Solutions.P0048.solve
   69 -> Just Solutions.P0069.solve
   70 -> Just Solutions.P0070.solve
+  73 -> Just Solutions.P0073.solve
   97 -> Just Solutions.P0097.solve
   _ -> Nothing
