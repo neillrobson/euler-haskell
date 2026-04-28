@@ -37,13 +37,4 @@ getInteger = do
     Just i -> return i
 
 answer :: Integer -> Maybe Integer
-answer = \case
-  48 -> Just Solutions.P0048.solve
-  69 -> Just Solutions.P0069.solve
-  70 -> Just Solutions.P0070.solve
-  73 -> Just Solutions.P0073.solve
-  97 -> Just Solutions.P0097.solve
-  _ -> Nothing
-
-templateAns :: Integer -> Maybe Integer
-templateAns = $(buildDispatcher "src/Solutions")
+answer = $(buildDispatcher "src/Solutions")

@@ -2,6 +2,8 @@
 
 module Solutions where
 
+import Data.Maybe (catMaybes)
+import Data.Traversable (for)
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax (Quasi (qAddDependentFile))
 import System.Directory (listDirectory)
@@ -21,12 +23,15 @@ buildDispatcher dir = do
             Just n <- [readMaybe rest :: Maybe Integer]
         ]
   arg <- newName "n"
-  let matches = map mkMatch problems
+  rawMatches <- mapM mkMatch problems
+  let matches = map pure $ catMaybes rawMatches
   let fallback = match wildP (normalB [|Nothing|]) []
   lamE [varP arg] (caseE (varE arg) (matches ++ [fallback]))
   where
     mkMatch n = do
       let modName = "Solutions.P" ++ pad4 n
-          solveNm = mkName $ modName ++ ".solve"
-      match (litP (IntegerL n)) (normalB [|Just $(varE solveNm)|]) []
+          funcName = modName ++ ".solve"
+      solveNm <- lookupValueName funcName
+      for solveNm $ \solveName -> do
+        match (litP (IntegerL n)) (normalB [|Just $(varE solveName)|]) []
     pad4 n = replicate (4 - length s) '0' ++ s where s = show n

@@ -24,7 +24,6 @@ source-repository head
 
 library
   exposed-modules:
-      Dispatch
       Solutions
       Solutions.P0048
       Solutions.P0069
