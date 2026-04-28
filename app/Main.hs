@@ -1,7 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Main where
 
+import Solutions (buildDispatcher)
 import Solutions.P0048 (solve)
 import Solutions.P0069 (solve)
 import Solutions.P0070 (solve)
@@ -42,3 +44,6 @@ answer = \case
   73 -> Just Solutions.P0073.solve
   97 -> Just Solutions.P0097.solve
   _ -> Nothing
+
+templateAns :: Integer -> Maybe Integer
+templateAns = $(buildDispatcher "src/Solutions")
