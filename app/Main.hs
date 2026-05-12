@@ -6,6 +6,7 @@ module Main where
 import Control.Monad ((>=>))
 import Data.Maybe (listToMaybe)
 import Solutions (buildDispatcher)
+import Solutions.P0001 (solve)
 import Solutions.P0048 (solve)
 import Solutions.P0069 (solve)
 import Solutions.P0070 (solve)
