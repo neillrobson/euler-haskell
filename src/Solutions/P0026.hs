@@ -1,7 +1,6 @@
 module Solutions.P0026 where
 
 import Data.List (elemIndex)
-import Data.Maybe (fromMaybe)
 
 solve :: Integer
 solve = undefined
@@ -11,11 +10,16 @@ solve = undefined
 recurringDigitsFor :: Integer -> Int
 recurringDigitsFor n = go []
   where
-    go [] = go [(0, 10)]
-    go ss@(s : _) = if r == 0 then 0 else fromMaybe (go $ next : ss) rep
+    go [] = go [(0, 1)]
+    go ss@(s : _)
+      | r == 0 = 0
+      | otherwise = rep
       where
         next@(_, r) = nextDigit n s
-        rep = (`div` 2) . (+ 1) <$> elemIndex next ss
+        mbRep = next `elemIndex` ss
+        rep = case mbRep of
+          Just i -> i + 1
+          Nothing -> go $ next : ss
 
 type Remainder = Integer
 
@@ -25,7 +29,6 @@ type State = (Digit, Remainder)
 
 nextDigit :: Integer -> State -> State
 nextDigit _ s@(_, 0) = s
-nextDigit d (_, n) = (x, r')
+nextDigit d (_, n) = (x, r)
   where
-    (x, r) = n `divMod` d
-    r' = if r == n then n * 10 else r
+    (x, r) = (n * 10) `divMod` d
