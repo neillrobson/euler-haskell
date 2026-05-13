@@ -36,10 +36,6 @@ library
       Solutions.P0097
       Utils.Modular
       Utils.Primes
-  other-modules:
-      Paths_euler_haskell
-  autogen-modules:
-      Paths_euler_haskell
   hs-source-dirs:
       src
   default-extensions:
@@ -56,10 +52,6 @@ library
 
 executable euler
   main-is: Main.hs
-  other-modules:
-      Paths_euler_haskell
-  autogen-modules:
-      Paths_euler_haskell
   hs-source-dirs:
       app
   default-extensions:
