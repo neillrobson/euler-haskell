@@ -1,11 +1,15 @@
 module Solutions.P0026 where
 
-import Data.List (elemIndex)
+import Data.List (elemIndex, maximumBy)
+import Data.Ord (comparing)
 
 solve :: Integer
-solve = undefined
+solve = maxRecurringUnder 1000
 
 --------------------------------------------------------------------------------
+
+maxRecurringUnder :: Integer -> Integer
+maxRecurringUnder n = fst . maximumBy (comparing snd) . map (\x -> (x, recurringDigitsFor x)) $ [2 .. n - 1]
 
 recurringDigitsFor :: Integer -> Int
 recurringDigitsFor n = go []
