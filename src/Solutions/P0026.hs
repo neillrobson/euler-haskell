@@ -8,11 +8,15 @@ solve = undefined
 recurringDigitsFor :: Integer -> [Integer]
 recurringDigitsFor n = undefined
 
--- Next: also store remainder with each digit, to identify loops
-type State = ([Integer], Integer)
+type Remainder = Integer
+
+type Digit = Integer
+
+type State = (Digit, Remainder)
 
 nextDigit :: Integer -> State -> State
 nextDigit _ s@(_, 0) = s
-nextDigit d (xs, r) = (x : xs, if r == r' then r * 10 else r')
+nextDigit d (_, n) = (x, r')
   where
-    (x, r') = r `divMod` d
+    (x, r) = n `divMod` d
+    r' = if r == n then n * 10 else r
