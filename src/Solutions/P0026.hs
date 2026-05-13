@@ -1,12 +1,21 @@
 module Solutions.P0026 where
 
+import Data.List (elemIndex)
+import Data.Maybe (fromMaybe)
+
 solve :: Integer
 solve = undefined
 
 --------------------------------------------------------------------------------
 
-recurringDigitsFor :: Integer -> [Integer]
-recurringDigitsFor n = undefined
+recurringDigitsFor :: Integer -> Int
+recurringDigitsFor n = go []
+  where
+    go [] = go [(0, 10)]
+    go ss@(s : _) = if r == 0 then 0 else fromMaybe (go $ next : ss) rep
+      where
+        next@(_, r) = nextDigit n s
+        rep = (`div` 2) . (+ 1) <$> elemIndex next ss
 
 type Remainder = Integer
 
