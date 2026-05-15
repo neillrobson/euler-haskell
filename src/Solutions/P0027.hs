@@ -5,7 +5,9 @@ import Data.Function (on)
 import Utils.Primes (isPrime)
 
 solve :: Integer
-solve = undefined
+solve = fromIntegral $ a * b
+  where
+    (a, b) = longestConsecWithin 1000
 
 pairs :: Int -> [(Int, Int)]
 pairs n = [(a, b) | a <- [negate n + 1 .. n - 1], b <- [negate n .. n]]
@@ -17,4 +19,4 @@ consecPrimes :: (Int, Int) -> Int
 consecPrimes ab = length $ takeWhile isPrime $ map (quad ab) [0 ..]
 
 longestConsecWithin :: Int -> (Int, Int)
-longestConsecWithin = maximumBy (compare `on` consecPrimes) . pairs
+longestConsecWithin = fst . maximumBy (compare `on` snd) . map (\ab -> (ab, consecPrimes ab)) . pairs
