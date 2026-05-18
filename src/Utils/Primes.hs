@@ -12,14 +12,21 @@ import Data.Word (Word64)
 --------------------------------------------------------------------------------
 
 primes :: (Integral a) => [a]
-primes = 2 : 3 : filter isPrime (chain [5, 11 ..] [7, 13 ..])
+primes = 2 : 3 : filter isPrime' (chain [5, 11 ..] [7, 13 ..])
   where
     chain [] ys = ys
     chain xs [] = xs
     chain (x : xs) (y : ys) = x : y : chain xs ys
 
+-- | WARNING: this utility only works for integers greater than 1.
+--  Use isPrime for accurate answers over all integers.
+isPrime' :: (Integral a) => a -> Bool
+isPrime' x = all (\i -> x `mod` i /= 0) $ takeWhile (\i -> i * i <= x) primes
+
 isPrime :: (Integral a) => a -> Bool
-isPrime x = all (\i -> x `mod` i /= 0) $ takeWhile (\i -> i * i <= x) primes
+isPrime x
+  | x <= 1 = False
+  | otherwise = isPrime' x
 
 eulerPhi :: Int64 -> [Int64]
 eulerPhi limit = elems $ accum (\x p -> x - x `div` p) phi primePairs
