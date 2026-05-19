@@ -37,7 +37,9 @@ on each side of the parabolic curve.
 Multiply out p(L-n) = (L-n)^2 + (L-n) + 41:
 p(L-n) = n^2 - (2L+1)n + (L^2+L+41)
 
-b=L^2+L+41. b must be a prime (so n=0 is prime);
-b must also be as large as possible (shifting as far right as possible).
-Finally, b must be less than 1000, as per the problem statement.
+b=L^2+L+41.
+L won't be greater than 39 (because of the original formula's limit).
+b must be a prime (so n=0 is prime);
+b should also be as large as possible (shifting as far right as possible);
+Finally, b must be less than or equal to 1000, as per the problem statement.
 -}
