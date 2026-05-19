@@ -20,3 +20,24 @@ consecPrimes ab = length $ takeWhile isPrime $ map (quad ab) [0 ..]
 
 longestConsecWithin :: Int -> (Int, Int)
 longestConsecWithin = fst . maximumBy (compare `on` snd) . map (\ab -> (ab, consecPrimes ab)) . pairs
+
+--------------------------------------------------------------------------------
+
+{-
+Plenty fast, but we can do better.
+Using p(n) = n^2 + n + 41 as a baseline...
+
+If any property (like primality) holds for 0<=n<=L in p(n),
+it'll also hold for those values in p(L-n).
+
+For our parabola in particular (always positive, close to center on x-axis),
+shifting to the right gets us up to 2L primes, because there will be duplicates
+on each side of the parabolic curve.
+
+Multiply out p(L-n) = (L-n)^2 + (L-n) + 41:
+p(L-n) = n^2 - (2L+1)n + (L^2+L+41)
+
+b=L^2+L+41. b must be a prime (so n=0 is prime);
+b must also be as large as possible (shifting as far right as possible).
+Finally, b must be less than 1000, as per the problem statement.
+-}
