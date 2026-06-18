@@ -1,10 +1,13 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE KindSignatures #-}
 
 module Utils.Modular where
 
+import Data.Bits (Bits)
 import GHC.TypeLits (KnownNat, Nat, natVal)
 
-newtype Mod (m :: Nat) = Mod {unMod :: Integer} deriving (Eq, Ord)
+-- | Unbounded integers modulo m. Overflow isn't a concern.
+newtype Mod (m :: Nat) = Mod {unMod :: Integer} deriving (Eq, Ord, Bits)
 
 instance (KnownNat m) => Num (Mod m) where
   mx@(Mod x) * Mod y = Mod $ x * y `mod` natVal mx
