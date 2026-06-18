@@ -19,5 +19,5 @@ instance (KnownNat m) => Num (Mod m) where
     where
       mx = Mod $ x `mod` natVal mx
 
-instance Show (Mod m) where
-  show (Mod x) = show x
+instance (KnownNat m) => Show (Mod m) where
+  show mx@(Mod x) = show x ++ "  (mod " ++ show (natVal mx) ++ ")"
