@@ -35,6 +35,9 @@ fromDoor_ = fromDoor sing
 -- Some old definitions
 --------------------------------------------------------------------------------
 
+mkDoor :: Sing s -> String -> Door s
+mkDoor _ = UnsafeMkDoor
+
 closeDoor :: Door 'Opened -> Door 'Closed
 closeDoor (UnsafeMkDoor m) = UnsafeMkDoor m
 
@@ -62,3 +65,8 @@ closeSomeOpenedDoor (MkSomeDoor s d) = case s of
 
 lockAnySomeDoor :: SomeDoor -> SomeDoor
 lockAnySomeDoor (MkSomeDoor s d) = fromDoor_ $ lockAnyDoor s d
+
+mkSomeDoor :: DoorState -> String -> SomeDoor
+mkSomeDoor Opened = fromDoor_ . mkDoor SOpened
+mkSomeDoor Closed = fromDoor_ . mkDoor SClosed
+mkSomeDoor Locked = fromDoor_ . mkDoor SLocked
