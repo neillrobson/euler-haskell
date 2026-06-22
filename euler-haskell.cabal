@@ -43,6 +43,7 @@ library
       Utils.Powers
       Utils.Primes
       Utils.Singleton
+      Utils.Singleton2
       Utils.SingLib
   hs-source-dirs:
       src
