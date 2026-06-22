@@ -43,6 +43,7 @@ library
       Utils.Powers
       Utils.Primes
       Utils.Singleton
+      Utils.SingLib
   hs-source-dirs:
       src
   default-extensions:

@@ -2,6 +2,8 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE LambdaCase #-}
 
+module Utils.Singleton where
+
 import Data.Kind (Type)
 
 -- Source: https://blog.jle.im/entry/introduction-to-singletons-1.html
