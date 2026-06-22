@@ -65,3 +65,18 @@ lockAnyDoor' = lockAnyDoor singDS
 
 doorStatus' :: (SingDSI s) => Door s -> DoorState
 doorStatus' = doorStatus singDS
+
+-- This doesn't work because we don't know which `singDS` instance to choose.
+-- `SingDSI s` binds an `s` at the type level, but `singDS` is working at the
+-- term level. The error hints at this by referring to `s0`, a different `s`.
+-- lockAnyDoor'' :: (SingDSI s) => Door s -> Door 'Locked
+-- lockAnyDoor'' = case singDS of
+--   SOpened -> lockDoor . closeDoor
+--   SClosed -> lockDoor
+--   SLocked -> id
+
+mkDoor :: SDoorState s -> String -> Door s
+mkDoor _ = UnsafeMkDoor
+
+mkDoor' :: (SingDSI s) => String -> Door s
+mkDoor' = mkDoor singDS
