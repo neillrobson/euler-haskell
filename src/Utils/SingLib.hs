@@ -2,6 +2,7 @@
 {-# LANGUAGE StandaloneKindSignatures #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE ViewPatterns #-}
 
 module Utils.SingLib where
 
@@ -15,4 +16,6 @@ newtype Door (s :: DoorState) = UnsafeMkDoor {doorMaterial :: String}
 
 -- | Unlocks a door, but only if the user enters an odd number as a password.
 unlockDoor :: Int -> Door 'Locked -> Maybe (Door 'Closed)
-unlockDoor = undefined
+unlockDoor i (doorMaterial -> m)
+  | odd i = Just $ UnsafeMkDoor m
+  | otherwise = Nothing
