@@ -42,6 +42,7 @@ library
       Utils.Modular
       Utils.Powers
       Utils.Primes
+      Utils.Singleton
   hs-source-dirs:
       src
   default-extensions:
