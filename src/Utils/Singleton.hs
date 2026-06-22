@@ -26,11 +26,13 @@ data SDoorState :: DoorState -> Type where
 -- Usage examples, explicit passing of singleton
 --------------------------------------------------------------------------------
 
+-- Note how @closeDoor@ and @lockDoor@ have the exact same term-level definition
+
 closeDoor :: Door 'Opened -> Door 'Closed
-closeDoor = undefined
+closeDoor (UnsafeMkDoor m) = UnsafeMkDoor m
 
 lockDoor :: Door 'Closed -> Door 'Locked
-lockDoor = undefined
+lockDoor (UnsafeMkDoor m) = UnsafeMkDoor m
 
 lockAnyDoor :: SDoorState s -> Door s -> Door 'Locked
 lockAnyDoor = \case
@@ -68,14 +70,15 @@ lockAnyDoor' = lockAnyDoor singDS
 doorStatus' :: (SingDSI s) => Door s -> DoorState
 doorStatus' = doorStatus singDS
 
--- This doesn't work because we don't know which `singDS` instance to choose.
--- `SingDSI s` binds an `s` at the type level, but `singDS` is working at the
--- term level. The error hints at this by referring to `s0`, a different `s`.
--- lockAnyDoor'' :: (SingDSI s) => Door s -> Door 'Locked
--- lockAnyDoor'' = case singDS of
---   SOpened -> lockDoor . closeDoor
---   SClosed -> lockDoor
---   SLocked -> id
+-- | The indirection and type signature for @go@ is necessary to bind the same
+-- state parameter between the @SDoorState@ and @Door@.
+lockAnyDoor'' :: (SingDSI s) => Door s -> Door 'Locked
+lockAnyDoor'' = go singDS
+  where
+    go :: SDoorState t -> Door t -> Door 'Locked
+    go SOpened = lockDoor . closeDoor
+    go SClosed = lockDoor
+    go SLocked = id
 
 mkDoor :: SDoorState s -> String -> Door s
 mkDoor _ = UnsafeMkDoor
