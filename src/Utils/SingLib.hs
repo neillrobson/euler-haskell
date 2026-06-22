@@ -1,8 +1,15 @@
-{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE StandaloneKindSignatures #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Utils.SingLib where
 
+import Data.Singletons.TH
+
 data DoorState = Opened | Closed | Locked deriving (Eq, Show)
+
+$(genSingletons [''DoorState])
 
 newtype Door (s :: DoorState) = UnsafeMkDoor {doorMaterial :: String}
 

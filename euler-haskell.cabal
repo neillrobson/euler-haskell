@@ -55,6 +55,8 @@ library
     , containers
     , directory
     , filepath
+    , singletons
+    , singletons-th
     , template-haskell
   default-language: Haskell2010
 
@@ -72,5 +74,7 @@ executable euler
     , directory
     , euler-haskell
     , filepath
+    , singletons
+    , singletons-th
     , template-haskell
   default-language: Haskell2010
