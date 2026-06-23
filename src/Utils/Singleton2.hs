@@ -7,7 +7,7 @@
 module Utils.Singleton2 where
 
 import Data.Kind (Type)
-import Data.Singletons.TH (Sing, SingI (sing), genSingletons)
+import Data.Singletons.TH (Sing, SingI (sing), SingKind (fromSing, toSing), SomeSing (SomeSing), genSingletons)
 
 data DoorState = Opened | Closed | Locked deriving (Eq, Show)
 
@@ -47,7 +47,7 @@ lockDoor (UnsafeMkDoor m) = UnsafeMkDoor m
 openDoor :: Door 'Closed -> Door 'Opened
 openDoor (UnsafeMkDoor m) = UnsafeMkDoor m
 
-lockAnyDoor :: SDoorState s -> Door s -> Door 'Locked
+lockAnyDoor :: Sing s -> Door s -> Door 'Locked
 lockAnyDoor = \case
   SOpened -> lockDoor . closeDoor
   SClosed -> lockDoor
@@ -70,3 +70,17 @@ mkSomeDoor :: DoorState -> String -> SomeDoor
 mkSomeDoor Opened = fromDoor_ . mkDoor SOpened
 mkSomeDoor Closed = fromDoor_ . mkDoor SClosed
 mkSomeDoor Locked = fromDoor_ . mkDoor SLocked
+
+--------------------------------------------------------------------------------
+-- Exercises
+--------------------------------------------------------------------------------
+
+data OldSomeDoor :: Type where
+  OldMkSomeDoor :: DoorState -> String -> OldSomeDoor
+
+toOld :: SomeDoor -> OldSomeDoor
+toOld (MkSomeDoor s d) = OldMkSomeDoor (fromSing s) (doorMaterial d)
+
+fromOld :: OldSomeDoor -> SomeDoor
+fromOld (OldMkSomeDoor ds m) = case toSing ds of
+  SomeSing s -> MkSomeDoor s (UnsafeMkDoor m)
