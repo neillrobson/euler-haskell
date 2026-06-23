@@ -22,6 +22,9 @@ data Door :: DoorState -> Type where
 -- Existential datatypes
 --------------------------------------------------------------------------------
 
+-- | The "Some" in @SomeDoor@ indicates that, if you have a value of this type,
+-- you have *either* an opened door, a closed door, or a locked door. It's
+-- exactly one of those options.
 data SomeDoor :: Type where
   MkSomeDoor :: Sing s -> Door s -> SomeDoor
 
