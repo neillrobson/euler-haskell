@@ -1,13 +1,16 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE StandaloneKindSignatures #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Utils.Singleton2 where
 
 import Data.Kind (Type)
-import Data.Singletons.TH (Sing, SingI (sing), SingKind (fromSing, toSing), SomeSing (SomeSing), genSingletons, withSingI, withSomeSing)
+import Data.Singletons.TH (Sing, SingI (sing), SingKind (Demote, fromSing, toSing), SomeSing (SomeSing), genSingletons, withSingI, withSomeSing)
 
 data DoorState = Opened | Closed | Locked deriving (Eq, Show)
 
@@ -113,3 +116,24 @@ openAnySomeDoor :: Int -> SomeDoor -> SomeDoor
 openAnySomeDoor n (MkSomeDoor s d) = case withSingI s (openAnyDoor n d) of
   Just d' -> fromDoor_ d'
   Nothing -> withSingI s fromDoor_ d
+
+data List a = Nil | Cons a (List a)
+
+data SList :: List a -> Type where
+  SNil :: SList 'Nil
+  SCons :: Sing x -> SList xs -> SList ('Cons x xs)
+
+type instance Sing = SList
+
+instance (SingKind k) => SingKind (List k) where
+  type Demote (List k) = List (Demote k)
+
+  fromSing :: Sing (xs :: List k) -> List (Demote k)
+  fromSing = \case
+    SNil -> Nil
+    SCons sx sxs -> Cons (fromSing sx) (fromSing sxs)
+
+  toSing :: List (Demote k) -> SomeSing (List k)
+  toSing = \case
+    Nil -> SomeSing SNil
+    Cons x xs -> withSomeSing x $ \sx -> SomeSing $ SCons sx (toSing xs)
