@@ -7,7 +7,7 @@
 module Utils.Singleton2 where
 
 import Data.Kind (Type)
-import Data.Singletons.TH (Sing, SingI (sing), SingKind (fromSing, toSing), SomeSing (SomeSing), genSingletons, withSomeSing)
+import Data.Singletons.TH (Sing, SingI (sing), SingKind (fromSing, toSing), SomeSing (SomeSing), genSingletons, withSingI, withSomeSing)
 
 data DoorState = Opened | Closed | Locked deriving (Eq, Show)
 
@@ -100,3 +100,16 @@ unlockSomeDoor :: Int -> Door 'Locked -> SomeDoor
 unlockSomeDoor n d = case unlockDoor n d of
   Just d' -> fromDoor_ d'
   Nothing -> fromDoor_ d
+
+openAnyDoor :: (SingI s) => Int -> Door s -> Maybe (Door 'Opened)
+openAnyDoor n = openAnyDoor_ sing
+  where
+    openAnyDoor_ :: Sing s -> Door s -> Maybe (Door 'Opened)
+    openAnyDoor_ SOpened = Just
+    openAnyDoor_ SClosed = Just . openDoor
+    openAnyDoor_ SLocked = fmap openDoor . unlockDoor n
+
+openAnySomeDoor :: Int -> SomeDoor -> SomeDoor
+openAnySomeDoor n (MkSomeDoor s d) = case withSingI s (openAnyDoor n d) of
+  Just d' -> fromDoor_ d'
+  Nothing -> withSingI s fromDoor_ d
