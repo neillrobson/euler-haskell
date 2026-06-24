@@ -90,3 +90,13 @@ fromOld (OldMkSomeDoor ds m) = case toSing ds of
 
 fromOld' :: OldSomeDoor -> SomeDoor
 fromOld' (OldMkSomeDoor ds m) = withSomeSing ds $ \s -> MkSomeDoor s (UnsafeMkDoor m)
+
+unlockDoor :: Int -> Door 'Locked -> Maybe (Door 'Closed)
+unlockDoor n (UnsafeMkDoor m)
+  | n `mod` 2 == 1 = Just $ UnsafeMkDoor m
+  | otherwise = Nothing
+
+unlockSomeDoor :: Int -> Door 'Locked -> SomeDoor
+unlockSomeDoor n d = case unlockDoor n d of
+  Just d' -> fromDoor_ d'
+  Nothing -> fromDoor_ d
