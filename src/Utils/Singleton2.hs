@@ -136,4 +136,7 @@ instance (SingKind k) => SingKind (List k) where
   toSing :: List (Demote k) -> SomeSing (List k)
   toSing = \case
     Nil -> SomeSing SNil
-    Cons x xs -> withSomeSing x $ \sx -> SomeSing $ SCons sx (toSing xs)
+    Cons x xs ->
+      withSomeSing x $ \sx ->
+        withSomeSing xs $ \sxs ->
+          SomeSing $ SCons sx sxs
