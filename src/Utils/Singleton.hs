@@ -1,6 +1,5 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
 
 module Utils.Singleton where
 
@@ -10,13 +9,14 @@ import Data.Kind (Type)
 
 data DoorState = Opened | Closed | Locked deriving (Eq, Show)
 
-newtype Door (s :: DoorState) = UnsafeMkDoor {doorMaterial :: String}
+-- | Three different types, one for each door state. Each type can have many
+-- potential values associated with it (the door material can be any @String@).
+data Door :: DoorState -> Type where
+  UnsafeMkDoor :: {doorMaterial :: String} -> Door s
 
--- Equivalent with GADT
-data GDoor :: DoorState -> Type where
-  UnsafeMkGDoor :: {gDoorMaterial :: String} -> GDoor s
-
--- Singleton version
+-- | Three different types, one for each door state. Each type only has a single
+-- data value associated with it: e.g. @SOpened@ is the only value of type
+-- @SDoorState 'Opened@.
 data SDoorState :: DoorState -> Type where
   SOpened :: SDoorState 'Opened
   SClosed :: SDoorState 'Closed
@@ -35,10 +35,9 @@ lockDoor :: Door 'Closed -> Door 'Locked
 lockDoor (UnsafeMkDoor m) = UnsafeMkDoor m
 
 lockAnyDoor :: SDoorState s -> Door s -> Door 'Locked
-lockAnyDoor = \case
-  SOpened -> lockDoor . closeDoor
-  SClosed -> lockDoor
-  SLocked -> id
+lockAnyDoor SOpened = lockDoor . closeDoor
+lockAnyDoor SClosed = lockDoor
+lockAnyDoor SLocked = id
 
 fromSDoorState :: SDoorState s -> DoorState
 fromSDoorState SOpened = Opened

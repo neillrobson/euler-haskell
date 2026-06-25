@@ -117,6 +117,8 @@ openAnySomeDoor n (MkSomeDoor s d) = case withSingI s (openAnyDoor n d) of
   Just d' -> fromDoor_ d'
   Nothing -> withSingI s fromDoor_ d
 
+--------------------------------------------------------------------------------
+
 data List a = Nil | Cons a (List a)
 
 data SList :: List a -> Type where
