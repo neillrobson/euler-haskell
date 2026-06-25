@@ -15,7 +15,11 @@ import Utils.Primes (primes)
 -- Any true prime has a phi of (p-1) which is definitely not an anagram.
 
 solve :: Integer
-solve = fst $ head $ filter anagramBelowLimit $ map (uncurry phiPrimePair) $ sortedPrimePairs $ primesBelow 10000
+solve =
+  let list = filter anagramBelowLimit $ map (uncurry phiPrimePair) $ sortedPrimePairs $ primesBelow 10000
+   in case list of
+        [] -> 0
+        hd : _ -> fst hd
 
 --------------------------------------------------------------------------------
 

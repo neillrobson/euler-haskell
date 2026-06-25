@@ -1,6 +1,5 @@
 module Solutions.P0069 where
 
-import Data.Foldable (Foldable (foldl'))
 import Data.Ratio ((%))
 import Data.Word (Word64)
 import Utils.Primes (phiST, primes)
