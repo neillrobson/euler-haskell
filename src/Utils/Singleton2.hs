@@ -86,6 +86,13 @@ mkSomeDoor Locked = fromDoor_ . mkDoor SLocked
 data MySing :: Type -> Type where
   MkMySing :: Sing s -> MySing DoorState
 
+mkSomeDoor' :: DoorState -> String -> SomeDoor
+mkSomeDoor' ds = withSomeSing ds $ \s -> MkSomeDoor s . UnsafeMkDoor
+
+mkSomeDoor'' :: DoorState -> String -> SomeDoor
+mkSomeDoor'' ds = case toSing ds of
+  SomeSing s -> MkSomeDoor s . UnsafeMkDoor
+
 --------------------------------------------------------------------------------
 -- Exercises
 --------------------------------------------------------------------------------
