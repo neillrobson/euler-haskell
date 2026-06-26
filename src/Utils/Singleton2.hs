@@ -77,6 +77,15 @@ mkSomeDoor Opened = fromDoor_ . mkDoor SOpened
 mkSomeDoor Closed = fromDoor_ . mkDoor SClosed
 mkSomeDoor Locked = fromDoor_ . mkDoor SLocked
 
+-- | An example implementation of @SomeSing@ specifically for @DoorState@.
+-- @MySing@ constructs a type out of any type argument. The data constructor
+-- @MkMySing@ contains an existentially-quantified singleton, like @SOpened@.
+-- When given a value of type @MySing DoorState@, we can pattern-match using
+-- @MkMySing@ to get the singleton (and therefore the type). That process, term
+-- to type, is called _reification_.
+data MySing :: Type -> Type where
+  MkMySing :: Sing s -> MySing DoorState
+
 --------------------------------------------------------------------------------
 -- Exercises
 --------------------------------------------------------------------------------
