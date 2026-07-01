@@ -1,5 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Utils.MyNat where
 
@@ -62,6 +63,14 @@ natVal' = go natSing
     go SOne _ = 1
     go STwo _ = 2
     go SThree _ = 3
+
+-- | A third, more direct form using ScopedTypeVariables.
+natVal'' :: forall n proxy. (KnownNat n) => proxy n -> Natural
+natVal'' _ = case natSing :: SNat n of
+  SZero -> 0
+  SOne -> 1
+  STwo -> 2
+  SThree -> 3
 
 --------------------------------------------------------------------------------
 
