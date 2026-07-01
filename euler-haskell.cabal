@@ -40,6 +40,7 @@ library
       Solutions.P0073
       Solutions.P0097
       Utils.Modular
+      Utils.MyNat
       Utils.Powers
       Utils.Primes
       Utils.Singleton
