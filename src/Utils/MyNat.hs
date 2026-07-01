@@ -31,5 +31,38 @@ fromProxy snat _ = fromSNat snat
 class KnownNat (n :: Nat) where
   natSing :: SNat n
 
-natVal :: (KnownNat n) => proxy n -> Natural
-natVal = fromProxy natSing
+natVal :: (KnownNat n) => proxy n -> Integer
+natVal = toInteger . fromProxy natSing
+
+--------------------------------------------------------------------------------
+
+newtype Mod (m :: Nat) = Mod {unMod :: Integer} deriving (Eq, Ord)
+
+instance (KnownNat m) => Num (Mod m) where
+  mx@(Mod x) * Mod y = Mod $ x * y `mod` natVal mx
+  mx@(Mod x) + Mod y = Mod $ x + y `mod` natVal mx
+  negate mx@(Mod x) = Mod $ if x == 0 then 0 else natVal mx - x
+  abs = id
+  signum (Mod x) = Mod $ signum x
+  fromInteger x = mx
+    where
+      mx = Mod $ x `mod` natVal mx
+
+instance (KnownNat m) => Show (Mod m) where
+  show mx@(Mod x) = show x ++ "  (mod " ++ show (natVal mx) ++ ")"
+
+type ModThree = Mod 3
+
+type ModSeven = Mod 7
+
+eightModSeven :: ModSeven
+eightModSeven = Mod 8
+
+shouldBeTwo :: ModSeven
+shouldBeTwo = eightModSeven + eightModSeven
+
+eightModThree :: ModThree
+eightModThree = Mod 8
+
+shouldBeFour :: ModThree
+shouldBeFour = eightModThree + eightModThree
