@@ -18,6 +18,8 @@ dependencies:
   - containers
   - directory
   - filepath
+  - ghc-internal
+  - ghc-prim
   - singletons
   - singletons-th
   - template-haskell

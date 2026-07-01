@@ -46,6 +46,7 @@ library
       Utils.Singleton2
       Utils.Singleton3
       Utils.SingLib
+      Utils.TypeNats
   hs-source-dirs:
       src
   default-extensions:
@@ -57,6 +58,8 @@ library
     , containers
     , directory
     , filepath
+    , ghc-internal
+    , ghc-prim
     , singletons
     , singletons-th
     , template-haskell
@@ -76,6 +79,8 @@ executable euler
     , directory
     , euler-haskell
     , filepath
+    , ghc-internal
+    , ghc-prim
     , singletons
     , singletons-th
     , template-haskell
