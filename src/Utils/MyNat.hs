@@ -4,6 +4,7 @@
 module Utils.MyNat where
 
 import Data.Kind (Type)
+import GHC.Num (integerToNatural)
 import Numeric.Natural (Natural)
 
 -- | Type synonym for 'Natural'. The goal is to recreate type-level natural
@@ -31,38 +32,58 @@ fromProxy snat _ = fromSNat snat
 class KnownNat (n :: Nat) where
   natSing :: SNat n
 
-natVal :: (KnownNat n) => proxy n -> Integer
-natVal = toInteger . fromProxy natSing
+instance KnownNat 0 where
+  natSing = SZero
+
+instance KnownNat 1 where
+  natSing = SOne
+
+instance KnownNat 2 where
+  natSing = STwo
+
+instance KnownNat 3 where
+  natSing = SThree
+
+-- | The proxy value carries the witness to the fact that 'n' is a 'KnownNat'.
+-- We cannot pass 'natSing' directly to 'fromSNat' without a witness to the fact
+-- that 'natSing' exists for the given value of 'n'. The proxy, being this
+-- function's only argument, is that witness.
+natVal :: (KnownNat n) => proxy n -> Natural
+natVal = fromProxy natSing
+
+-- | Same as 'natVal' but inlined. The 'go' function needs the proxy argument
+-- only because it's tied to the 'KnownNat' witness at the top. Removing the
+-- proxy, 'go' would not know what 'SNat' to resolve 'natSing' to.
+natVal' :: (KnownNat n) => proxy n -> Natural
+natVal' = go natSing
+  where
+    go :: SNat m -> proxy m -> Natural
+    go SZero _ = 0
+    go SOne _ = 1
+    go STwo _ = 2
+    go SThree _ = 3
 
 --------------------------------------------------------------------------------
 
-newtype Mod (m :: Nat) = Mod {unMod :: Integer} deriving (Eq, Ord)
+newtype Mod (m :: Nat) = Mod {unMod :: Natural} deriving (Eq, Ord)
 
 instance (KnownNat m) => Num (Mod m) where
   mx@(Mod x) * Mod y = Mod $ x * y `mod` natVal mx
-  mx@(Mod x) + Mod y = Mod $ x + y `mod` natVal mx
+  mx@(Mod x) + Mod y = Mod $ (x + y) `mod` natVal mx
   negate mx@(Mod x) = Mod $ if x == 0 then 0 else natVal mx - x
   abs = id
   signum (Mod x) = Mod $ signum x
   fromInteger x = mx
     where
-      mx = Mod $ x `mod` natVal mx
+      mx = Mod $ (integerToNatural x) `mod` natVal mx
 
 instance (KnownNat m) => Show (Mod m) where
   show mx@(Mod x) = show x ++ "  (mod " ++ show (natVal mx) ++ ")"
 
 type ModThree = Mod 3
 
-type ModSeven = Mod 7
+twoModThree :: ModThree
+twoModThree = Mod 2
 
-eightModSeven :: ModSeven
-eightModSeven = Mod 8
-
-shouldBeTwo :: ModSeven
-shouldBeTwo = eightModSeven + eightModSeven
-
-eightModThree :: ModThree
-eightModThree = Mod 8
-
-shouldBeFour :: ModThree
-shouldBeFour = eightModThree + eightModThree
+shouldBeOne :: ModThree
+shouldBeOne = twoModThree + twoModThree
