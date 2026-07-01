@@ -18,3 +18,18 @@ data SNat :: Nat -> Type where
   SOne :: SNat 1
   STwo :: SNat 2
   SThree :: SNat 3
+
+fromSNat :: SNat n -> Natural
+fromSNat SZero = 0
+fromSNat SOne = 1
+fromSNat STwo = 2
+fromSNat SThree = 3
+
+fromProxy :: SNat n -> proxy n -> Natural
+fromProxy snat _ = fromSNat snat
+
+class KnownNat (n :: Nat) where
+  natSing :: SNat n
+
+natVal :: (KnownNat n) => proxy n -> Natural
+natVal = fromProxy natSing
