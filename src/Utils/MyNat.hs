@@ -12,61 +12,75 @@ import Numeric.Natural (Natural)
 -- numbers with singletons.
 type Nat = Natural
 
+--------------------------------------------------------------------------------
+-- Nat singleton, explicit enumeration
+--------------------------------------------------------------------------------
+
 -- | The singleton for `Nat`. Clearly, not all the cases have been enumerated,
 -- nor could they ever feasibly be enumerated in this way. This is just for
 -- demonstration.
-data SNat :: Nat -> Type where
-  SZero :: SNat 0
-  SOne :: SNat 1
-  STwo :: SNat 2
-  SThree :: SNat 3
+data ENat :: Nat -> Type where
+  SZero :: ENat 0
+  SOne :: ENat 1
+  STwo :: ENat 2
+  SThree :: ENat 3
 
-fromSNat :: SNat n -> Natural
-fromSNat SZero = 0
-fromSNat SOne = 1
-fromSNat STwo = 2
-fromSNat SThree = 3
+fromENat :: ENat n -> Natural
+fromENat SZero = 0
+fromENat SOne = 1
+fromENat STwo = 2
+fromENat SThree = 3
 
-fromProxy :: SNat n -> proxy n -> Natural
-fromProxy snat _ = fromSNat snat
+fromProxy :: ENat n -> proxy n -> Natural
+fromProxy snat _ = fromENat snat
 
-class KnownNat (n :: Nat) where
-  natSing :: SNat n
+class KnownENat (n :: Nat) where
+  natSing :: ENat n
 
-instance KnownNat 0 where
+instance KnownENat 0 where
   natSing = SZero
 
-instance KnownNat 1 where
+instance KnownENat 1 where
   natSing = SOne
 
-instance KnownNat 2 where
+instance KnownENat 2 where
   natSing = STwo
 
-instance KnownNat 3 where
+instance KnownENat 3 where
   natSing = SThree
+
+--------------------------------------------------------------------------------
+-- Nat singleton, tacit enumeration
+--------------------------------------------------------------------------------
+
+-- TODO.
+
+--------------------------------------------------------------------------------
+-- natVal: retrieving the Natural value from a type
+--------------------------------------------------------------------------------
 
 -- | The proxy value carries the witness to the fact that 'n' is a 'KnownNat'.
 -- We cannot pass 'natSing' directly to 'fromSNat' without a witness to the fact
 -- that 'natSing' exists for the given value of 'n'. The proxy, being this
 -- function's only argument, is that witness.
-natVal :: (KnownNat n) => proxy n -> Natural
+natVal :: (KnownENat n) => proxy n -> Natural
 natVal = fromProxy natSing
 
 -- | Same as 'natVal' but inlined. The 'go' function needs the proxy argument
 -- only because it's tied to the 'KnownNat' witness at the top. Removing the
 -- proxy, 'go' would not know what 'SNat' to resolve 'natSing' to.
-natVal' :: (KnownNat n) => proxy n -> Natural
+natVal' :: (KnownENat n) => proxy n -> Natural
 natVal' = go natSing
   where
-    go :: SNat m -> proxy m -> Natural
+    go :: ENat m -> proxy m -> Natural
     go SZero _ = 0
     go SOne _ = 1
     go STwo _ = 2
     go SThree _ = 3
 
 -- | A third, more direct form using ScopedTypeVariables.
-natVal'' :: forall n proxy. (KnownNat n) => proxy n -> Natural
-natVal'' _ = case natSing :: SNat n of
+natVal'' :: forall n proxy. (KnownENat n) => proxy n -> Natural
+natVal'' _ = case natSing :: ENat n of
   SZero -> 0
   SOne -> 1
   STwo -> 2
@@ -76,7 +90,7 @@ natVal'' _ = case natSing :: SNat n of
 
 newtype Mod (m :: Nat) = Mod {unMod :: Natural} deriving (Eq, Ord)
 
-instance (KnownNat m) => Num (Mod m) where
+instance (KnownENat m) => Num (Mod m) where
   mx@(Mod x) * Mod y = Mod $ x * y `mod` natVal mx
   mx@(Mod x) + Mod y = Mod $ (x + y) `mod` natVal mx
   negate mx@(Mod x) = Mod $ if x == 0 then 0 else natVal mx - x
@@ -86,7 +100,7 @@ instance (KnownNat m) => Num (Mod m) where
     where
       mx = Mod $ (integerToNatural x) `mod` natVal mx
 
-instance (KnownNat m) => Show (Mod m) where
+instance (KnownENat m) => Show (Mod m) where
   show mx@(Mod x) = show x ++ "  (mod " ++ show (natVal mx) ++ ")"
 
 type ModThree = Mod 3
