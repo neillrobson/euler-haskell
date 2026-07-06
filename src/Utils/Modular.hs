@@ -24,3 +24,11 @@ instance (KnownNat m) => Num (Mod m) where
 
 instance (KnownNat m) => Show (Mod m) where
   show mx@(Mod x) = show x ++ "  (mod " ++ show (natVal mx) ++ ")"
+
+type ModThree = Mod 3
+
+twoModThree :: ModThree
+twoModThree = Mod 2
+
+shouldBeOne :: ModThree
+shouldBeOne = twoModThree + twoModThree

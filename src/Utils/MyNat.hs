@@ -1,5 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE RoleAnnotations #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Utils.MyNat where
@@ -35,25 +36,34 @@ fromProxy :: ENat n -> proxy n -> Natural
 fromProxy snat _ = fromENat snat
 
 class KnownENat (n :: Nat) where
-  natSing :: ENat n
+  natESing :: ENat n
 
 instance KnownENat 0 where
-  natSing = SZero
+  natESing = SZero
 
 instance KnownENat 1 where
-  natSing = SOne
+  natESing = SOne
 
 instance KnownENat 2 where
-  natSing = STwo
+  natESing = STwo
 
 instance KnownENat 3 where
-  natSing = SThree
+  natESing = SThree
 
 --------------------------------------------------------------------------------
 -- Nat singleton, tacit enumeration
 --------------------------------------------------------------------------------
 
--- TODO.
+newtype SNat (n :: Nat) = UnsafeSNat Natural
+
+fromSNat :: SNat n -> Natural
+fromSNat (UnsafeSNat n) = n
+
+fromSProxy :: SNat n -> proxy n -> Natural
+fromSProxy snat _ = fromSNat snat
+
+class KnownNat (n :: Nat) where
+  natSing :: SNat n
 
 --------------------------------------------------------------------------------
 -- natVal: retrieving the Natural value from a type
@@ -64,13 +74,13 @@ instance KnownENat 3 where
 -- that 'natSing' exists for the given value of 'n'. The proxy, being this
 -- function's only argument, is that witness.
 natVal :: (KnownENat n) => proxy n -> Natural
-natVal = fromProxy natSing
+natVal = fromProxy natESing
 
 -- | Same as 'natVal' but inlined. The 'go' function needs the proxy argument
 -- only because it's tied to the 'KnownNat' witness at the top. Removing the
 -- proxy, 'go' would not know what 'SNat' to resolve 'natSing' to.
 natVal' :: (KnownENat n) => proxy n -> Natural
-natVal' = go natSing
+natVal' = go natESing
   where
     go :: ENat m -> proxy m -> Natural
     go SZero _ = 0
@@ -80,28 +90,32 @@ natVal' = go natSing
 
 -- | A third, more direct form using ScopedTypeVariables.
 natVal'' :: forall n proxy. (KnownENat n) => proxy n -> Natural
-natVal'' _ = case natSing :: ENat n of
+natVal'' _ = case natESing :: ENat n of
   SZero -> 0
   SOne -> 1
   STwo -> 2
   SThree -> 3
 
+natVal_ :: forall n proxy. (KnownNat n) => proxy n -> Natural
+natVal_ _ = case natSing :: SNat n of
+  UnsafeSNat n -> n
+
 --------------------------------------------------------------------------------
 
 newtype Mod (m :: Nat) = Mod {unMod :: Natural} deriving (Eq, Ord)
 
-instance (KnownENat m) => Num (Mod m) where
-  mx@(Mod x) * Mod y = Mod $ x * y `mod` natVal mx
-  mx@(Mod x) + Mod y = Mod $ (x + y) `mod` natVal mx
-  negate mx@(Mod x) = Mod $ if x == 0 then 0 else natVal mx - x
+instance (KnownNat m) => Num (Mod m) where
+  mx@(Mod x) * Mod y = Mod $ x * y `mod` natVal_ mx
+  mx@(Mod x) + Mod y = Mod $ (x + y) `mod` natVal_ mx
+  negate mx@(Mod x) = Mod $ if x == 0 then 0 else natVal_ mx - x
   abs = id
   signum (Mod x) = Mod $ signum x
   fromInteger x = mx
     where
-      mx = Mod $ (integerToNatural x) `mod` natVal mx
+      mx = Mod $ (integerToNatural x) `mod` natVal_ mx
 
-instance (KnownENat m) => Show (Mod m) where
-  show mx@(Mod x) = show x ++ "  (mod " ++ show (natVal mx) ++ ")"
+instance (KnownNat m) => Show (Mod m) where
+  show mx@(Mod x) = show x ++ "  (mod " ++ show (natVal_ mx) ++ ")"
 
 type ModThree = Mod 3
 
