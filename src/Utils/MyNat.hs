@@ -1,12 +1,17 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RoleAnnotations #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Utils.MyNat where
 
 import Data.Kind (Type)
+import Data.Proxy (Proxy (Proxy))
 import GHC.Num (integerToNatural)
+import qualified GHC.TypeNats as TN
 import Numeric.Natural (Natural)
 
 -- | Type synonym for 'Natural'. The goal is to recreate type-level natural
@@ -64,6 +69,9 @@ fromSProxy snat _ = fromSNat snat
 
 class KnownNat (n :: Nat) where
   natSing :: SNat n
+
+instance (TN.KnownNat n) => KnownNat n where
+  natSing = UnsafeSNat $ TN.natVal $ Proxy @n
 
 --------------------------------------------------------------------------------
 -- natVal: retrieving the Natural value from a type
