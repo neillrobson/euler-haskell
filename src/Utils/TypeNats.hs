@@ -80,9 +80,11 @@ import GHC.Internal.Read (Read (..))
 import GHC.Internal.Show (Show (..), appPrec, appPrec1, showParen, showString)
 import GHC.Internal.TypeNats.Internal (CmpNat)
 import GHC.Internal.Unsafe.Coerce (unsafeCoerce)
+import GHC.Num (integerToNatural)
 import GHC.Num.Natural (Natural)
 import GHC.Prim (Proxy#)
 import GHC.Types
+import Prelude (Integral (mod), Num (..), id, ($))
 
 -- | A type synonym for 'Natural'.
 --
@@ -462,3 +464,28 @@ withSomeSNat ::
   Natural -> (forall n. SNat n -> r) -> r
 withSomeSNat n k = k (UnsafeSNat n)
 {-# NOINLINE withSomeSNat #-} -- See Note [NOINLINE withSomeSNat]
+
+--------------------------------------------------------------------------------
+
+newtype MMod (m :: Nat) = MMod {unMod :: Natural} deriving (Eq, Ord)
+
+instance (KnownNat m) => Num (MMod m) where
+  mx@(MMod x) * MMod y = MMod $ x * y `mod` natVal mx
+  mx@(MMod x) + MMod y = MMod $ (x + y) `mod` natVal mx
+  negate mx@(MMod x) = MMod $ if x == 0 then 0 else natVal mx - x
+  abs = id
+  signum (MMod x) = MMod $ signum x
+  fromInteger x = mx
+    where
+      mx = MMod $ (integerToNatural x) `mod` natVal mx
+
+instance (KnownNat m) => Show (MMod m) where
+  show mx@(MMod x) = show x ++ "  (mod " ++ show (natVal mx) ++ ")"
+
+type ModThree = MMod 3
+
+twoModThree :: ModThree
+twoModThree = MMod 2
+
+shouldBeOne :: ModThree
+shouldBeOne = twoModThree + twoModThree
