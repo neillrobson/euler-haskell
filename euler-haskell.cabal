@@ -47,6 +47,7 @@ library
       Utils.Singleton2
       Utils.Singleton3
       Utils.SingLib
+      Utils.Test
       Utils.TypeNats
   hs-source-dirs:
       src
