@@ -1,34 +1,53 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE UndecidableInstances #-}
 
 module Utils.Test where
 
-class Mul a b c where
+class Mul a b c | a b -> c where
   (.*.) :: a -> b -> c
 
 instance Mul Int Int Int where (.*.) = (*)
 
 instance Mul Int Float Float where x .*. y = fromIntegral x * y
 
-instance (Mul a b c) => Mul a [b] [c] where x .*. v = map (x .*.) v
+instance (Mul d e e) => Mul d [e] [e] where x .*. v = map (x .*.) v
 
--- f = \z x y -> if z then x .*. [y] else y
+f = \z x y -> if z then x .*. [y] else x
 
 {-
-With fundep:
+x .*. [y] requires Mul a [b] c.
+The "else y" further requires c ~ b, so we match Mul a [b] b.
 
-x .*. [y] requires Mul a [b] r.
-The "else y" further requires r ~ b, so we match Mul a [b] b.
+Without a fundep, there is nothing else we can do with `a` and `b`:
+they are ambiguous, so we do not commit to any instance. We stop.
 
-We're going to match with Mul a [b] [c].
-The fundep says that the third param is deterministic,
-so b must unify with [c].
+With a fundep `d e -> f`, the third type argument can be eagerly solved for,
+because it is guaranteed unique for any choice of the first two.
 
-Now we "just" need to match the constraint, Mul a [c] c. Loop.
+So when considering `instance Mul d [e] [f]`, `b` can be eagerly replaced with
+`[f]` and the implications considered.
 
-Without fundep:
+d ~ a, e ~ b, and b ~~ [f], so the constraint can become `Mul a [f] f`.
+Loop ensues.
+
+--------------------------------------------------------------------------------
+
+The coverage condition prevents this sort of unterminated loop.
+
+For every type variable "determined" on the right hand side, its presence on the
+LHS provides a binding to the target type signature.
+
+Say the instance was:
+
+instance (Mul d e e) => Mul d [e] [e]
+
+Attempt the same typecheck for Mul a [b] a.
+d ~ a, e ~ b, a ~~ [e]: This time, we can use the earlier unifications to
+resolve that final forcing, creating a ~~ [b].
+
+Using the replacements in the constraint, Mul d e e becomes Mul [b] b b.
+Still one ambiguous type variable, but no recursion!
 -}
 
 g :: Bool -> Int -> [[Float]] -> [[Float]]
